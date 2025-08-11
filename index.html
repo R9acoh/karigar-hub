@@ -6,23 +6,91 @@
     <title>Karigar's Hub</title>
     
     <link rel="manifest" href="manifest.json">
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        .menu-link.active {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+        .tab-button.active {
+            border-bottom: 2px solid #0284c7;
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .filter-button.active {
+            background-color: #0284c7;
+            color: white;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fab {
+            transition: transform 0.2s ease-in-out;
+        }
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        .voice-listening {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(2, 132, 199, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+        }
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .marquee span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 20s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+    </style>
 </head>
 <body class="antialiased">
 
+    <!-- Login Overlay -->
     <div id="login-overlay" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center relative">
-            <button id="close-login-overlay-btn" class="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-800 rounded-full" aria-label="Close login">
-                <i class="material-icons" aria-hidden="true">close</i>
+            <button id="close-login-overlay-btn" class="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-800 rounded-full">
+                <i class="material-icons">close</i>
             </button>
             
+            <!-- Step 1: Login Method -->
             <div id="login-step-1">
                 <h2 class="text-2xl font-bold mb-2" data-translate="login_title">Create an Account</h2>
                 <p class="text-gray-600 mb-6" data-translate="login_desc">Choose a method to sign up or log in.</p>
@@ -31,35 +99,40 @@
                         <i class="material-icons text-gray-400">phone</i>
                         <input type="tel" id="phone-number" placeholder="10-digit mobile number" class="w-full p-1 ml-2 border-none focus:ring-0" maxlength="10">
                     </div>
-                     <button id="phone-login-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 opacity-50 cursor-not-allowed" data-translate="login_button_phone" disabled>Continue with Phone</button>
+                     <button id="phone-login-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700" data-translate="login_button_phone">Continue with Phone</button>
                     <div class="my-2 text-xs text-gray-400">OR</div>
                     <button class="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 flex items-center justify-center"><i class="material-icons mr-2">email</i><span data-translate="login_button_email">Continue with Email</span></button>
                     <button class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 flex items-center justify-center"><i class="material-icons mr-2">fingerprint</i><span data-translate="login_button_aadhaar">Continue with Aadhaar</span></button>
                 </div>
             </div>
 
+            <!-- Step 2: Artisan Card -->
             <div id="login-step-2" class="hidden">
                  <h2 class="text-2xl font-bold mb-2" data-translate="artisan_card_q">Do you have an Artisan Card?</h2>
                  <p class="text-gray-600 mb-6" data-translate="artisan_card_desc">This helps us verify your identity and provide tailored services.</p>
                  <div class="space-y-3">
-                     <button id="has-card-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700" data-translate="yes">Yes, I have a card</button>
-                     <button id="no-card-btn" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300" data-translate="no">No, I need to register</button>
+                    <button id="has-card-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700" data-translate="yes">Yes, I have a card</button>
+                    <button id="no-card-btn" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300" data-translate="no">No, I need to register</button>
                  </div>
             </div>
 
+            <!-- Step 3: Verify Card -->
             <div id="login-step-3" class="hidden">
                 <h2 class="text-2xl font-bold mb-2" data-translate="verify_card_title">Verify Your Card</h2>
                 <p class="text-gray-600 mb-6" data-translate="verify_card_desc">Please enter your Artisan Card number.</p>
                 <input type="text" id="artisan-card-number" placeholder="Enter card number" class="w-full p-2 border-2 border-gray-200 rounded-lg text-center">
                 <button id="verify-card-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 mt-4" data-translate="verify_card_button">Verify & Continue</button>
             </div>
+
         </div>
     </div>
 
+    <!-- Main App Container -->
     <div id="app-container" class="max-w-4xl mx-auto hidden">
+        <!-- Header Section -->
         <header class="bg-white shadow-md sticky top-0 z-30 p-4 flex justify-between items-center">
-            <button id="menu-btn" class="p-2 rounded-full hover:bg-gray-100" aria-label="Open menu">
-                <i class="material-icons" aria-hidden="true">menu</i>
+            <button id="menu-btn" class="p-2 rounded-full hover:bg-gray-100">
+                <i class="material-icons">menu</i>
             </button>
             <h1 class="text-xl font-bold text-sky-800" data-translate="app_title">Karigar's Hub</h1>
             <div class="flex items-center space-x-2">
@@ -72,9 +145,10 @@
             </div>
         </header>
 
+        <!-- Sidebar -->
         <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
         <aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 left-0 h-full w-72 bg-white shadow-lg z-50">
-            <div class="p-4 border-b flex items-center space-x-3">
+             <div class="p-4 border-b flex items-center space-x-3">
                 <div class="bg-sky-600 text-white p-3 rounded-full">
                     <i class="material-icons">storefront</i>
                 </div>
@@ -92,98 +166,672 @@
             </nav>
         </aside>
 
+        <!-- Main Content -->
         <main id="content-area" class="pb-24"></main>
         
-        <button id="voice-assistant-btn" class="fab fixed bottom-6 right-6 bg-sky-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center z-40" aria-label="Activate voice assistant">
-            <i class="material-icons text-3xl" aria-hidden="true">mic</i>
+        <!-- Voice Assistant FAB -->
+        <button id="voice-assistant-btn" class="fab fixed bottom-6 right-6 bg-sky-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center z-40">
+            <i class="material-icons text-3xl">mic</i>
         </button>
         <div id="voice-status" class="fixed bottom-24 right-6 bg-black text-white text-sm rounded-lg px-3 py-1 z-40 hidden" data-translate="voice_listening">Listening...</div>
 
+        <!-- Notification Pop-up -->
         <div id="notification-popup" class="fixed top-20 right-5 bg-white p-4 rounded-lg shadow-lg z-50 hidden items-start space-x-3 max-w-sm">
             <i class="material-icons text-sky-500 mt-1">campaign</i>
             <div>
                 <h4 id="notification-title" class="font-bold"></h4>
                 <p id="notification-body" class="text-sm text-gray-600"></p>
             </div>
-            <button id="close-notification" class="text-gray-400 hover:text-gray-700" aria-label="Close notification">&times;</button>
+            <button id="close-notification" class="text-gray-400 hover:text-gray-700">&times;</button>
         </div>
     </div>
 
+    <!-- Page Content Templates -->
+    <div id="page-storage" class="hidden">
+        <div id="home-content">
+            <!-- Running Notification Banner -->
+            <div class="bg-sky-800 text-white p-2 marquee">
+                <span id="notification-banner-content">
+                    <!-- Content will be dynamically inserted here -->
+                </span>
+            </div>
+            <div class="p-4 md:p-6">
+                <!-- About Us Section -->
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="about_us_title">About Us</h2>
+                    <p class="text-gray-600" data-translate="about_us_desc">Our platform is a dedicated digital hub designed to empower handloom artisans by connecting them with opportunities, resources, and markets. We bring together government schemes, bank loan options, scholarships, upcoming fairs, and exhibitions—all in one place—so artisans can easily access the support they need to grow. Beyond information, we aim to create a bridge between tradition and technology, helping artisans expand their reach, improve their livelihoods, and preserve our cultural heritage.</p>
+                </div>
 
-    <template id="home-content">
-        <div class="bg-sky-800 text-white p-2 marquee">
-            <span id="notification-banner-content"></span>
-        </div>
-        <div class="p-4 md:p-6">
-            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="about_us_title">About Us</h2>
-                <p class="text-gray-600" data-translate="about_us_desc">Our platform is a dedicated digital hub designed to empower handloom artisans... (content truncated for brevity)</p>
-            </div>
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="nav_training">Empower Yourself</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                     </div>
-            </div>
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="stories_title">Artisans' Stories</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
-                        <img src="https://placehold.co/80x80/E2E8F0/475569?text=PS" alt="Artisan Priya Sahoo" class="w-20 h-20 rounded-full object-cover" loading="lazy">
-                        <div>
-                             <h3 class="font-bold">Priya Sahoo</h3>
-                             <p class="text-sm text-gray-500">Pattachitra Artist, Raghurajpur</p>
-                             <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                <!-- Train Yourself Quick Links -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="nav_training">Empower Yourself</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="#training" class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition text-center">
+                            <i class="material-icons text-3xl text-purple-500">design_services</i>
+                            <p class="font-semibold mt-2" data-translate="training_cat_design">Design Resources</p>
+                        </a>
+                        <a href="#training" class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition text-center">
+                            <i class="material-icons text-3xl text-green-500">important_devices</i>
+                            <p class="font-semibold mt-2" data-translate="training_cat_digital">Digital Empowerment</p>
+                        </a>
+                        <a href="#training" class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition text-center">
+                            <i class="material-icons text-3xl text-amber-500">store</i>
+                            <p class="font-semibold mt-2" data-translate="training_cat_selling">Product Selling</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Artisans' Stories Section -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="stories_title">Artisans' Stories</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
+                            <img src="https://placehold.co/80x80/E2E8F0/475569?text=PS" alt="Artisan Priya Sahoo" class="w-20 h-20 rounded-full object-cover">
+                            <div>
+                                <h3 class="font-bold">Priya Sahoo</h3>
+                                <p class="text-sm text-gray-500">Pattachitra Artist, Raghurajpur</p>
+                                <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                            </div>
+                        </div>
+                         <div class="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
+                            <img src="https://placehold.co/80x80/E2E8F0/475569?text=AM" alt="Artisan Ashok Meher" class="w-20 h-20 rounded-full object-cover">
+                            <div>
+                                <h3 class="font-bold">Ashok Meher</h3>
+                                <p class="text-sm text-gray-500">Sambalpuri Weaver, Bargarh</p>
+                                <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                            </div>
                         </div>
                     </div>
-                     <div class="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
-                        <img src="https://placehold.co/80x80/E2E8F0/475569?text=AM" alt="Artisan Ashok Meher" class="w-20 h-20 rounded-full object-cover" loading="lazy">
+                    <button class="w-full mt-4 bg-green-100 text-green-800 font-semibold py-2 px-4 rounded-lg hover:bg-green-200" data-translate="submit_story">Submit Your Story</button>
+                </div>
+
+                <!-- Announcements & News -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="announcements_title">Announcements & News</h2>
+                    <div class="bg-white p-4 rounded-lg shadow space-y-3">
                         <div>
-                             <h3 class="font-bold">Ashok Meher</h3>
-                             <p class="text-sm text-gray-500">Sambalpuri Weaver, Bargarh</p>
-                             <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                            <p class="font-semibold">New subsidy announced for yarn purchase by the State Govt.</p>
+                            <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                        </div>
+                        <div class="border-t pt-3">
+                            <p class="font-semibold">Central Govt. increases stipend for trainees under PM Vishwakarma.</p>
+                            <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
                         </div>
                     </div>
                 </div>
-                <button class="w-full mt-4 bg-green-100 text-green-800 font-semibold py-2 px-4 rounded-lg hover:bg-green-200" data-translate="submit_story">Submit Your Story</button>
-            </div>
-            </div>
-    </template>
 
-    <template id="finance-content">
-        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_finance">Financial Aid & Loans</h2>
-        <div class="space-y-4 px-4 md:px-6">
+                <!-- Useful Links Section -->
+                <div>
+                     <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="useful_links_title">Useful Links</h2>
+                     <div class="bg-white p-4 rounded-lg shadow divide-y">
+                        <a href="https://pmsvanidhi.mohua.gov.in/" target="_blank" class="block py-2 text-gray-700 hover:text-sky-600" data-translate="link_artisan_card">Apply for Artisan Card</a>
+                        <a href="https://www.digilocker.gov.in/" target="_blank" class="block py-2 text-gray-700 hover:text-sky-600" data-translate="link_digilocker">DigiLocker</a>
+                        <a href="https://www.bharat-tex.com/" target="_blank" class="block py-2 text-gray-700 hover:text-sky-600" data-translate="link_bharat_tex">Bharat Tex 2025 Registration</a>
+                        <a href="https://handloom.nic.in/" target="_blank" class="block py-2 text-gray-700 hover:text-sky-600" data-translate="link_handloom_brand">India Handloom Brand Registration</a>
+                     </div>
+                </div>
             </div>
-    </template>
-    
-    <template id="scholarships-content">
-         <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_scholarships">Scholarships & Education</h2>
-         <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mx-4 md:mx-6">
-            </div>
-    </template>
-    
-    <template id="training-content">
-        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_training">Empower You / Training</h2>
-        <div class="space-y-6 px-4 md:px-6">
-             </div>
-    </template>
-    
-    <template id="events-content">
-        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_events">Events & Fairs</h2>
-        <div class="px-4 md:px-6">
-            </div>
-    </template>
-    
-    <template id="digilocker-content">
-        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_digilocker">DigiLocker</h2>
-        <div class="bg-white p-6 rounded-lg shadow text-center mx-4 md:mx-6">
-             <p class="mb-4" data-translate="digilocker_desc">Securely store and share your official documents like Aadhaar, Artisan Card, and more.</p>
-             <a href="https://www.digilocker.gov.in/" target="_blank" class="inline-block bg-sky-600 text-white py-2 px-6 rounded-lg hover:bg-sky-700" data-translate="digilocker_button">Go to DigiLocker</a>
         </div>
-    </template>
-    
-    <template id="support-content">
-        </template>
+        <div id="finance-content">
+            <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_finance">Financial Aid & Loans</h2>
+            <div class="space-y-4 px-4 md:px-6">
+                <!-- PM Vishwakarma -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-lg" data-translate="finance_pmv_title">PM Vishwakarma</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-translate="finance_pmv_desc">A holistic scheme for artisans providing skill training, toolkits, and credit support.</p>
+                    <a href="https://pmvishwakarma.gov.in/" target="_blank" class="text-sky-600 hover:underline" data-translate="learn_more">Learn More &rarr;</a>
+                </div>
+                <!-- SBI Weaver MUDRA -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-lg" data-translate="finance_sbi_title">SBI Weaver MUDRA Loan</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-translate="finance_sbi_desc">Special MUDRA loans for handloom weavers. Interest Rate: Varies.</p>
+                    <a href="https://sbi.co.in/web/sme/sme-loans/mudra-loans" target="_blank" class="text-sky-600 hover:underline" data-translate="learn_more">Learn More &rarr;</a>
+                </div>
+                <!-- SIDBI -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-lg" data-translate="finance_sidbi_title">SIDBI Schemes</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-translate="finance_sidbi_desc">Various schemes for financing and development of MSMEs, including artisans.</p>
+                    <a href="https://www.sidbi.in/" target="_blank" class="text-sky-600 hover:underline" data-translate="learn_more">Learn More &rarr;</a>
+                </div>
+                 <!-- Odisha State Co-op Bank -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-lg" data-translate="finance_oscb_title">Odisha State Co-op Bank Loans</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-translate="finance_oscb_desc">State-specific loan options for cooperative members and artisans.</p>
+                    <a href="#" class="text-sky-600 hover:underline" data-translate="learn_more">Learn More &rarr;</a>
+                </div>
+            </div>
+        </div>
+        <div id="scholarships-content">
+            <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_scholarships">Scholarships & Education</h2>
+            <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mx-4 md:mx-6">
+                <!-- Tabs -->
+                <div class="border-b border-gray-200 overflow-x-auto">
+                    <nav id="scholarship-tabs" class="flex space-x-4" aria-label="Tabs">
+                        <button class="tab-button active shrink-0 pb-2 px-1" data-tab="central" data-translate="scholarship_tab_central">Central / National</button>
+                        <button class="tab-button shrink-0 pb-2 px-1" data-tab="state" data-translate="scholarship_tab_state">Odisha State</button>
+                        <button class="tab-button shrink-0 pb-2 px-1" data-tab="ngo" data-translate="scholarship_tab_ngo">NGO / Private</button>
+                        <button class="tab-button shrink-0 pb-2 px-1" data-tab="loans" data-translate="scholarship_tab_loans">Education Loans</button>
+                    </nav>
+                </div>
 
-    <script src="script.js" defer></script>
+                <!-- Tab Content -->
+                <div class="mt-4">
+                    <!-- Central Tab -->
+                    <div id="central-tab" class="tab-content active space-y-4">
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_central_nsp_title">National Scholarship Portal (NSP)</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_central_nsp_desc">Central gateway for many central & state scholarships.</p>
+                            <a href="https://scholarships.gov.in/" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_central_css_title">Central Sector Scheme of Scholarships</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_central_css_desc">For College & University Students.</p>
+                            <a href="https://www.education.gov.in/scholarships-education-loan-0-hi" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_central_st_title">Post-Matric Scholarship for ST Students</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_central_st_desc">From the Ministry of Tribal Affairs.</p>
+                            <a href="https://tribal.nic.in/ScholarshiP.aspx" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                    </div>
+                    <!-- State Tab -->
+                    <div id="state-tab" class="tab-content space-y-4">
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_state_portal_title">Odisha State Scholarship Portal</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_state_portal_desc">Central point for many Odisha scholarships.</p>
+                            <a href="https://scholarship.odisha.gov.in/" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_state_prerana_title">PRERANA (Post-Matric Scholarships)</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_state_prerana_desc">For SC/ST/OBC/EBC students in Odisha.</p>
+                            <a href="https://stsc.odisha.gov.in/state-scholarship-programme" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                    </div>
+                    <!-- NGO/Private Tab -->
+                    <div id="ngo-tab" class="tab-content space-y-4">
+                         <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_ngo_tata_title">Tata Trusts - Education Grants</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_ngo_tata_desc">Various grants and scholarships for students.</p>
+                            <a href="https://www.tatatrusts.org/our-work/individual-grants-programme/education-grants" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold" data-translate="s_ngo_birla_title">Aditya Birla Group Scholarships</h3>
+                            <p class="text-sm text-gray-600" data-translate="s_ngo_birla_desc">For students in top institutes.</p>
+                            <a href="https://www.adityabirlascholars.net/" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                    </div>
+                    <!-- Education Loans Tab -->
+                    <div id="loans-tab" class="tab-content space-y-4">
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold">State Bank of India (SBI)</h3>
+                            <a href="https://sbi.co.in/web/personal-banking/loans/education-loans" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold">Canara Bank</h3>
+                            <a href="https://canarabank.com/vidya-turant" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <h3 class="font-semibold">HDFC Bank</h3>
+                            <a href="https://www.hdfcbank.com/personal/borrow/popular-loans/educational-loan" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="training-content">
+            <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_training">Empower You / Training</h2>
+            <div class="space-y-6 px-4 md:px-6">
+                <!-- Design Resources -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2" data-translate="training_cat_design">Design Resources</h3>
+                    <div class="bg-white p-4 rounded-lg shadow space-y-2">
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_designs_patterns">Downloadable Design Patterns</a>
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_designs_templates">Weaving Templates</a>
+                    </div>
+                </div>
+                <!-- Digital Empowerment -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2" data-translate="training_cat_digital">Digital Empowerment Videos</h3>
+                    <div class="bg-white p-4 rounded-lg shadow space-y-2">
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_digital_upi">How to use UPI</a>
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_digital_banking">Online Banking Basics</a>
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_digital_safety">Online Safety Tips</a>
+                    </div>
+                </div>
+                <!-- Business Tutorials -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2" data-translate="training_cat_selling">Product Selling Tutorials</h3>
+                    <div class="bg-white p-4 rounded-lg shadow space-y-2">
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_business_amazon">Selling on Amazon Karigar</a>
+                        <a href="#" class="block text-sky-600 hover:underline" data-translate="training_business_flipkart">Selling on Flipkart Samarth</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="events-content">
+            <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_events">Events & Fairs</h2>
+            <div class="px-4 md:px-6">
+                <div class="flex space-x-2 mb-4">
+                    <button class="filter-button active flex-1 py-2 px-3 rounded-lg text-sm" data-filter="all" data-translate="events_filter_all">All</button>
+                    <button class="filter-button flex-1 py-2 px-3 rounded-lg text-sm" data-filter="odisha" data-translate="events_filter_odisha">Odisha</button>
+                    <button class="filter-button flex-1 py-2 px-3 rounded-lg text-sm" data-filter="national" data-translate="events_filter_national">National</button>
+                    <button class="filter-button flex-1 py-2 px-3 rounded-lg text-sm" data-filter="international" data-translate="events_filter_international">International</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="event-card bg-white p-4 rounded-lg shadow" data-category="odisha">
+                        <h3 class="font-bold">Odisha Tex</h3>
+                        <a href="https://odishatex.com/" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                    </div>
+                    <div class="event-card bg-white p-4 rounded-lg shadow" data-category="national">
+                        <h3 class="font-bold">Surajkund Mela</h3>
+                        <a href="https://www.surajkundmelaauthority.com/" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                    </div>
+                    <div class="event-card bg-white p-4 rounded-lg shadow" data-category="international">
+                        <h3 class="font-bold">IHGF Delhi Fair</h3>
+                        <a href="https://ihgfdelhifair.in/" target="_blank" class="text-sky-600 text-sm hover:underline" data-translate="visit_website">Visit Website &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="digilocker-content">
+            <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_digilocker">DigiLocker</h2>
+            <div class="bg-white p-6 rounded-lg shadow text-center mx-4 md:mx-6">
+                <p class="mb-4" data-translate="digilocker_desc">Securely store and share your official documents like Aadhaar, Artisan Card, and more.</p>
+                <a href="https://www.digilocker.gov.in/" target="_blank" class="inline-block bg-sky-600 text-white py-2 px-6 rounded-lg hover:bg-sky-700" data-translate="digilocker_button">Go to DigiLocker</a>
+            </div>
+        </div>
+        <div id="support-content">
+             <!-- Support content template -->
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- STATE & CONFIG ---
+    let currentLanguage = 'en';
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+
+    // --- DOM ELEMENT SELECTOR ---
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+
+    // --- TRANSLATION DATA ---
+    const translations = {
+        en: {
+            app_title: "Karigar's Hub",
+            login_title: "Create an Account",
+            login_desc: "Choose a method to sign up or log in.",
+            login_button_phone: "Continue with Phone",
+            login_button_email: "Continue with Email",
+            login_button_aadhaar: "Continue with Aadhaar",
+            artisan_card_q: "Do you have an Artisan Card?",
+            artisan_card_desc: "This helps us verify your identity and provide tailored services.",
+            yes: "Yes, I have a card",
+            no: "No, I need to register",
+            verify_card_title: "Verify Your Card",
+            verify_card_desc: "Please enter your Artisan Card number.",
+            verify_card_button: "Verify & Continue",
+            nav_home: "Home",
+            nav_finance: "Financial Aid & Loans",
+            nav_scholarships: "Scholarships & Education",
+            nav_training: "Empower Yourself",
+            nav_events: "Events & Fairs",
+            nav_digilocker: "DigiLocker",
+            nav_support: "Support",
+            nav_logout: "Logout",
+            about_us_title: "About Us",
+            about_us_desc: "Our platform is a dedicated digital hub designed to empower handloom artisans by connecting them with opportunities, resources, and markets. We bring together government schemes, bank loan options, scholarships, upcoming fairs, and exhibitions—all in one place—so artisans can easily access the support they need to grow. Beyond information, we aim to create a bridge between tradition and technology, helping artisans expand their reach, improve their livelihoods, and preserve our cultural heritage.",
+            stories_title: "Artisans' Stories",
+            read_more: "Read More",
+            submit_story: "Submit Your Story",
+            announcements_title: "Announcements & News",
+            useful_links_title: "Useful Links",
+            link_artisan_card: "Apply for Artisan Card",
+            link_digilocker: "DigiLocker",
+            link_bharat_tex: "Bharat Tex 2025 Registration",
+            link_handloom_brand: "India Handloom Brand Registration",
+            training_cat_design: "Design Resources",
+            training_cat_digital: "Digital Empowerment",
+            training_cat_selling: "Product Selling",
+            finance_pmv_title: "PM Vishwakarma",
+            finance_pmv_desc: "A holistic scheme for artisans providing skill training, toolkits, and credit support.",
+            finance_sbi_title: "SBI Weaver MUDRA Loan",
+            finance_sbi_desc: "Special MUDRA loans for handloom weavers. Interest Rate: Varies.",
+            finance_sidbi_title: "SIDBI Schemes",
+            finance_sidbi_desc: "Various schemes for financing and development of MSMEs, including artisans.",
+            finance_oscb_title: "Odisha State Co-op Bank Loans",
+            finance_oscb_desc: "State-specific loan options for cooperative members and artisans.",
+            learn_more: "Learn More",
+            training_designs_patterns: "Downloadable Design Patterns",
+            training_designs_templates: "Weaving Templates",
+            training_digital_upi: "How to use UPI",
+            training_digital_banking: "Online Banking Basics",
+            training_digital_safety: "Online Safety Tips",
+            training_business_amazon: "Selling on Amazon Karigar",
+            training_business_flipkart: "Selling on Flipkart Samarth",
+            events_filter_all: "All",
+            events_filter_odisha: "Odisha",
+            events_filter_national: "National",
+            events_filter_international: "International",
+            visit_website: "Visit Website",
+            digilocker_desc: "Securely store and share your official documents like Aadhaar, Artisan Card, and more.",
+            digilocker_button: "Go to DigiLocker",
+            voice_listening: "Listening...",
+            notification_title_fair: "Upcoming Fair!",
+            notification_body_fair: "The Surajkund Mela registration is now open. Apply before the deadline!",
+            banner_update_1: "Odisha Tex Fair registration is now open!",
+            banner_update_2: "PM Vishwakarma scheme deadline extended to 30th September.",
+            banner_update_3: "New Pattachitra design templates uploaded in the training section.",
+            scholarship_tab_central: "Central / National",
+            scholarship_tab_state: "Odisha State",
+            scholarship_tab_ngo: "NGO / Private",
+            scholarship_tab_loans: "Education Loans",
+            s_central_nsp_title: "National Scholarship Portal (NSP)",
+            s_central_nsp_desc: "Central gateway for many central & state scholarships.",
+            s_central_css_title: "Central Sector Scheme of Scholarships",
+            s_central_css_desc: "For College & University Students.",
+            s_central_st_title: "Post-Matric Scholarship for ST Students",
+            s_central_st_desc: "From the Ministry of Tribal Affairs.",
+            s_state_portal_title: "Odisha State Scholarship Portal",
+            s_state_portal_desc: "Central point for many Odisha scholarships.",
+            s_state_prerana_title: "PRERANA (Post-Matric Scholarships)",
+            s_state_prerana_desc: "For SC/ST/OBC/EBC students in Odisha.",
+            s_ngo_tata_title: "Tata Trusts - Education Grants",
+            s_ngo_tata_desc: "Various grants and scholarships for students.",
+            s_ngo_birla_title: "Aditya Birla Group Scholarships",
+            s_ngo_birla_desc: "For students in top institutes."
+        },
+        or: {
+            app_title: "କାରିଗରଙ୍କ ହବ୍",
+            login_title: "ଏକ ଆକାଉଣ୍ଟ୍ ସୃଷ୍ଟି କରନ୍ତୁ",
+            login_desc: "ସାଇନ୍ ଅପ୍ କିମ୍ବା ଲଗ୍ ଇନ୍ କରିବା ପାଇଁ ଏକ ପଦ୍ଧତି ବାଛନ୍ତୁ |",
+            login_button_phone: "ଫୋନ୍ ସହିତ ଜାରି ରଖନ୍ତୁ",
+            login_button_email: "ଇମେଲ୍ ସହିତ ଜାରି ରଖନ୍ତୁ",
+            login_button_aadhaar: "ଆଧାର ସହିତ ଜାରି ରଖନ୍ତୁ",
+            artisan_card_q: "ଆପଣଙ୍କ ପାଖରେ କାରିଗର କାର୍ଡ ଅଛି କି?",
+            artisan_card_desc: "ଏହା ଆମକୁ ଆପଣଙ୍କ ପରିଚୟ ଯାଞ୍ଚ କରିବାରେ ଏବଂ ଅନୁରୂପ ସେବା ପ୍ରଦାନ କରିବାରେ ସାହାଯ୍ୟ କରେ |",
+            yes: "ହଁ, ମୋର ଏକ କାର୍ଡ ଅଛି",
+            no: "ନା, ମୋତେ ପଞ୍ଜିକରଣ କରିବାକୁ ପଡିବ",
+            verify_card_title: "ଆପଣଙ୍କ କାର୍ଡ ଯାଞ୍ଚ କରନ୍ତୁ",
+            verify_card_desc: "ଦୟାକରି ଆପଣଙ୍କର କାରିଗର କାର୍ଡ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |",
+            verify_card_button: "ଯାଞ୍ଚ କରନ୍ତୁ ଏବଂ ଜାରି ରଖନ୍ତୁ",
+            nav_home: "ହୋମ୍",
+            nav_finance: "ଆର୍ଥିକ ସହାୟତା ଏବଂ ଋଣ",
+            nav_scholarships: "ଛାତ୍ରବୃତ୍ତି ଏବଂ ଶିକ୍ଷା",
+            nav_training: "ନିଜକୁ ସଶକ୍ତ କରନ୍ତୁ",
+            nav_events: "ଇଭେଣ୍ଟ ଏବଂ ମେଳା",
+            nav_digilocker: "ଡିଜିଲକର୍",
+            nav_support: "ସମର୍ଥନ",
+            nav_logout: "ଲଗଆଉଟ୍",
+            about_us_title: "ଆମ ବିଷୟରେ",
+            about_us_desc: "ଆମର ପ୍ଲାଟଫର୍ମ ହେଉଛି ଏକ ସମର୍ପିତ ଡିଜିଟାଲ୍ ହବ୍ ଯାହା ହସ୍ତତନ୍ତ କାରିଗରମାନଙ୍କୁ ସୁଯୋଗ, ସମ୍ବଳ ଏବଂ ବଜାର ସହିତ ସଂଯୋଗ କରି ସଶକ୍ତ କରିବା ପାଇଁ ପରିକଳ୍ପିତ | ଆମେ ସରକାରୀ ଯୋଜନା, ବ୍ୟାଙ୍କ ଋଣ ବିକଳ୍ପ, ଛାତ୍ରବୃତ୍ତି, ଆଗାମୀ ମେଳା ଏବଂ ପ୍ରଦର୍ଶନୀଗୁଡିକୁ ଏକାଠି ଆଣିଥାଉ - ସବୁକିଛି ଗୋଟିଏ ସ୍ଥାନରେ - ଯାହା ଦ୍ୱାରା କାରିଗରମାନେ ସେମାନଙ୍କର ଅଭିବୃଦ୍ଧି ପାଇଁ ଆବଶ୍ୟକ ସହାୟତା ସହଜରେ ପାଇପାରିବେ |",
+            stories_title: "କାରିଗରଙ୍କ କାହାଣୀ",
+            read_more: "ଅଧିକ ପଢନ୍ତୁ",
+            submit_story: "ଆପଣଙ୍କ କାହାଣୀ ଦାଖଲ କରନ୍ତୁ",
+            announcements_title: "ଘୋଷଣା ଏବଂ ସମ୍ବାଦ",
+            useful_links_title: "ଉପଯୋଗୀ ଲିଙ୍କ୍",
+            link_artisan_card: "କାରିଗର କାର୍ଡ ପାଇଁ ଆବେଦନ କରନ୍ତୁ",
+            link_digilocker: "ଡିଜିଲକର୍",
+            link_bharat_tex: "ଭାରତ ଟେକ୍ସ ୨୦୨୫ ପଞ୍ଜିକରଣ",
+            link_handloom_brand: "ଇଣ୍ଡିଆ ହ୍ୟାଣ୍ଡଲୁମ୍ ବ୍ରାଣ୍ଡ ପଞ୍ଜିକରଣ",
+            training_cat_design: "ଡିଜାଇନ୍ ସମ୍ବଳ",
+            training_cat_digital: "ଡିଜିଟାଲ୍ ସଶକ୍ତିକରଣ",
+            training_cat_selling: "ଉତ୍ପାଦ ବିକ୍ରୟ",
+            finance_pmv_title: "ପିଏମ୍ ବିଶ୍ୱକର୍ମା",
+            finance_pmv_desc: "କାରିଗରମାନଙ୍କ ପାଇଁ ଏକ ସାମଗ୍ରିକ ଯୋଜନା ଯାହା କୌଶଳ ତାଲିମ, ଟୁଲକିଟ୍ ଏବଂ ଋଣ ସହାୟତା ପ୍ରଦାନ କରେ |",
+            finance_sbi_title: "SBI ବୁଣାକାର ମୁଦ୍ରା ଋଣ",
+            finance_sbi_desc: "ବୁଣାକାରମାନଙ୍କ ପାଇଁ ସ୍ୱତନ୍ତ୍ର ମୁଦ୍ରା ଋଣ | ସୁଧ ହାର: ପରିବର୍ତ୍ତନଶୀଳ |",
+            finance_sidbi_title: "SIDBI ଯୋଜନା",
+            finance_sidbi_desc: "କାରିଗରମାନଙ୍କ ସମେତ MSME ଗୁଡିକର ଅର୍ଥ ଏବଂ ବିକାଶ ପାଇଁ ବିଭିନ୍ନ ଯୋଜନା |",
+            finance_oscb_title: "ଓଡିଶା ରାଜ୍ୟ ସମବାୟ ବ୍ୟାଙ୍କ ଋଣ",
+            finance_oscb_desc: "ସମବାୟ ସଦସ୍ୟ ଏବଂ କାରିଗରମାନଙ୍କ ପାଇଁ ରାଜ୍ୟ-ନିର୍ଦ୍ଦିଷ୍ଟ ଋଣ ବିକଳ୍ପ |",
+            learn_more: "ଅଧିକ ଜାଣନ୍ତୁ",
+            training_designs_patterns: "ଡାଉନଲୋଡ୍ ଯୋଗ୍ୟ ଡିଜାଇନ୍ ପ୍ୟାଟର୍ନ",
+            training_designs_templates: "ବୁଣା ଟେମ୍ପଲେଟ୍",
+            training_digital_upi: "UPI କିପରି ବ୍ୟବହାର କରିବେ",
+            training_digital_banking: "ଅନଲାଇନ୍ ବ୍ୟାଙ୍କିଙ୍ଗ୍ ମୌଳିକ",
+            training_digital_safety: "ଅନଲାଇନ୍ ସୁରକ୍ଷା ଟିପ୍ସ",
+            training_business_amazon: "ଆମାଜନ କାରିଗରରେ ବିକ୍ରୟ",
+            training_business_flipkart: "ଫ୍ଲିପକାର୍ଟ ସମର୍ଥରେ ବିକ୍ରୟ",
+            events_filter_all: "ସମସ୍ତ",
+            events_filter_odisha: "ଓଡିଶା",
+            events_filter_national: "ଜାତୀୟ",
+            events_filter_international: "ଆନ୍ତର୍ଜାତୀୟ",
+            visit_website: "ୱେବସାଇଟ୍ ପରିଦର୍ଶନ କରନ୍ତୁ",
+            digilocker_desc: "ଆପଣଙ୍କର ଆଧାର, କାରିଗର କାର୍ଡ ଏବଂ ଅଧିକ ଭଳି ସରକାରୀ ଦଲିଲଗୁଡ଼ିକୁ ସୁରକ୍ଷିତ ଭାବରେ ସଂରକ୍ଷଣ ଏବଂ ସେୟାର କରନ୍ତୁ |",
+            digilocker_button: "ଡିଜିଲକରକୁ ଯାଆନ୍ତୁ",
+            voice_listening: "ଶୁଣୁଛି...",
+            notification_title_fair: "ଆଗାମୀ ମେଳା!",
+            notification_body_fair: "ସୁରଜକୁଣ୍ଡ ମେଳା ପଞ୍ଜିକରଣ ବର୍ତ୍ତମାନ ଖୋଲା ଅଛି। ଶେଷ ତାରିଖ ପୂର୍ବରୁ ଆବେଦନ କରନ୍ତୁ!",
+            banner_update_1: "ଓଡିଶା ଟେକ୍ସ ମେଳା ପଞ୍ଜିକରଣ ବର୍ତ୍ତମାନ ଖୋଲା ଅଛି!",
+            banner_update_2: "ପିଏମ୍ ବିଶ୍ୱକର୍ମା ଯୋଜନାର ଶେଷ ତାରିଖ ୩୦ ସେପ୍ଟେମ୍ବରକୁ ବୃଦ୍ଧି କରାଯାଇଛି |",
+            banner_update_3: "ତାଲିମ ବିଭାଗରେ ନୂତନ ପଟ୍ଟଚିତ୍ର ଡିଜାଇନ୍ ଟେମ୍ପଲେଟ୍ ଅପଲୋଡ୍ କରାଯାଇଛି |",
+            scholarship_tab_central: "କେନ୍ଦ୍ରୀୟ / ଜାତୀୟ",
+            scholarship_tab_state: "ଓଡିଶା ରାଜ୍ୟ",
+            scholarship_tab_ngo: "ଏନଜିଓ / ବେସରକାରୀ",
+            scholarship_tab_loans: "ଶିକ୍ଷା ଋଣ",
+            s_central_nsp_title: "ଜାତୀୟ ଛାତ୍ରବୃତ୍ତି ପୋର୍ଟାଲ୍ (NSP)",
+            s_central_nsp_desc: "ବହୁ କେନ୍ଦ୍ରୀୟ ଏବଂ ରାଜ୍ୟ ଛାତ୍ରବୃତ୍ତି ପାଇଁ କେନ୍ଦ୍ରୀୟ ଗେଟୱେ |",
+            s_central_css_title: "କଲେଜ ଏବଂ ବିଶ୍ୱବିଦ୍ୟାଳୟ ଛାତ୍ରଛାତ୍ରୀଙ୍କ ପାଇଁ କେନ୍ଦ୍ରୀୟ କ୍ଷେତ୍ର ଯୋଜନା",
+            s_central_css_desc: "କଲେଜ ଏବଂ ବିଶ୍ୱବିଦ୍ୟାଳୟ ଛାତ୍ରଛାତ୍ରୀଙ୍କ ପାଇଁ |",
+            s_central_st_title: "ST ଛାତ୍ରଛାତ୍ରୀଙ୍କ ପାଇଁ ପୋଷ୍ଟ-ମାଟ୍ରିକ୍ ଛାତ୍ରବୃତ୍ତି",
+            s_central_st_desc: "ଆଦିବାସୀ ବ୍ୟାପାର ମନ୍ତ୍ରଣାଳୟରୁ |",
+            s_state_portal_title: "ଓଡିଶା ରାଜ୍ୟ ଛାତ୍ରବୃତ୍ତି ପୋର୍ଟାଲ୍",
+            s_state_portal_desc: "ବହୁ ଓଡିଶା ଛାତ୍ରବୃତ୍ତି ପାଇଁ କେନ୍ଦ୍ରୀୟ ପଏଣ୍ଟ |",
+            s_state_prerana_title: "ପ୍ରେରଣା (ପୋଷ୍ଟ-ମାଟ୍ରିକ୍ ଛାତ୍ରବୃତ୍ତି)",
+            s_state_prerana_desc: "ଓଡିଶାରେ SC/ST/OBC/EBC ଛାତ୍ରଛାତ୍ରୀଙ୍କ ପାଇଁ |",
+            s_ngo_tata_title: "ଟାଟା ଟ୍ରଷ୍ଟସ୍ - ଶିକ୍ଷା ଅନୁଦାନ",
+            s_ngo_tata_desc: "ଛାତ୍ରଛାତ୍ରୀଙ୍କ ପାଇଁ ବିଭିନ୍ନ ଅନୁଦାନ ଏବଂ ଛାତ୍ରବୃତ୍ତି |",
+            s_ngo_birla_title: "ଆଦିତ୍ୟ ବିର୍ଲା ଗ୍ରୁପ୍ ଛାତ୍ରବୃତ୍ତି",
+            s_ngo_birla_desc: "ଶୀର୍ଷ ସଂସ୍ଥାନର ଛାତ୍ରଛାତ୍ରୀଙ୍କ ପାଇଁ |"
+        }
+    };
+
+    // --- INITIALIZATION ---
+    const init = () => {
+        const savedLang = localStorage.getItem('karigar-lang') || 'en';
+        setLanguage(savedLang);
+        setupEventListeners();
+        if (SpeechRecognition) {
+            setupVoiceRecognition();
+        } else {
+            $('#voice-assistant-btn').classList.add('hidden');
+        }
+        if (!$('#app-container').classList.contains('hidden')) {
+            loadContentFromHash();
+        }
+    };
+
+    // --- LANGUAGE & TRANSLATION ---
+    const setLanguage = (lang) => {
+        currentLanguage = lang;
+        localStorage.setItem('karigar-lang', lang);
+        document.documentElement.lang = lang;
+        $('#language-toggle').checked = (lang === 'or');
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.getAttribute('data-translate');
+            if (translations[lang][key]) {
+                el.textContent = translations[lang][key];
+            }
+        });
+        updateBannerContent();
+    };
+
+    // --- LOGIN FLOW ---
+    const showLoginStep = (step) => {
+        ['#login-step-1', '#login-step-2', '#login-step-3'].forEach(s => $(s).classList.add('hidden'));
+        $(step).classList.remove('hidden');
+    };
+
+    const handleLogin = () => {
+        showLoginStep('#login-step-2');
+    };
+
+    const completeLogin = () => {
+        $('#login-overlay').classList.add('hidden');
+        $('#app-container').classList.remove('hidden');
+        loadContentFromHash();
+        setTimeout(() => showNotification('notification_title_fair', 'notification_body_fair'), 2000);
+    };
+
+    // --- NAVIGATION & CONTENT LOADING ---
+    const toggleSidebar = () => {
+        $('#sidebar').classList.toggle('sidebar-hidden');
+        $('#sidebar-overlay').classList.toggle('hidden');
+    };
+
+    const loadContentFromHash = () => {
+        const page = window.location.hash.substring(1) || 'home';
+        const contentTemplate = $(`#${page}-content`);
+        
+        $('#content-area').innerHTML = contentTemplate ? contentTemplate.innerHTML : $('#home-content').innerHTML;
+        
+        setLanguage(currentLanguage);
+        addDynamicEventListeners();
+        
+        $$('.menu-link').forEach(link => link.classList.toggle('active', link.getAttribute('href') === `#${page}`));
+        
+        if (!$('#sidebar').classList.contains('sidebar-hidden')) {
+            toggleSidebar();
+        }
+        window.scrollTo(0, 0);
+    };
+    
+    // --- DYNAMIC CONTENT ---
+    const updateBannerContent = () => {
+        const banner = $('#notification-banner-content');
+        if (banner) {
+            const updates = [
+                translations[currentLanguage].banner_update_1,
+                translations[currentLanguage].banner_update_2,
+                translations[currentLanguage].banner_update_3
+            ].join(' *** ');
+            banner.textContent = updates;
+        }
+    };
+
+    // --- VOICE ASSISTANT ---
+    const setupVoiceRecognition = () => {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = currentLanguage === 'or' ? 'or-IN' : 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+            const command = event.results[0][0].transcript.toLowerCase().trim();
+            handleVoiceCommand(command);
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            $('#voice-assistant-btn').classList.remove('voice-listening');
+            $('#voice-status').classList.add('hidden');
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Voice recognition error:', event.error);
+            $('#voice-assistant-btn').classList.remove('voice-listening');
+            $('#voice-status').classList.add('hidden');
+        };
+    };
+    
+    const handleVoiceCommand = (command) => {
+        let page = null;
+        if (command.includes('home') || command.includes('ହୋମ୍')) page = 'home';
+        else if (command.includes('loan') || command.includes('ଋଣ')) page = 'finance';
+        else if (command.includes('scholarship') || command.includes('ଛାତ୍ରବୃତ୍ତି')) page = 'scholarships';
+        else if (command.includes('training') || command.includes('ତାଲିମ')) page = 'training';
+        else if (command.includes('event') || command.includes('ଇଭେଣ୍ଟ')) page = 'events';
+
+        if (page) {
+            window.location.hash = page;
+        }
+    };
+
+    // --- NOTIFICATIONS ---
+    const showNotification = (titleKey, bodyKey) => {
+        $('#notification-title').textContent = translations[currentLanguage][titleKey];
+        $('#notification-body').textContent = translations[currentLanguage][bodyKey];
+        $('#notification-popup').classList.remove('hidden');
+    };
+    
+    // --- EVENT LISTENERS ---
+    const setupEventListeners = () => {
+        // Static Listeners
+        $('#close-login-overlay-btn').addEventListener('click', completeLogin);
+        $('#phone-login-btn').addEventListener('click', handleLogin);
+        $('#has-card-btn').addEventListener('click', () => showLoginStep('#login-step-3'));
+        $('#no-card-btn').addEventListener('click', () => window.open('https://services.india.gov.in/service/detail/handloom-weaver-id-card-application-odisha', '_blank'));
+        $('#verify-card-btn').addEventListener('click', completeLogin);
+        $('#menu-btn').addEventListener('click', toggleSidebar);
+        $('#sidebar-overlay').addEventListener('click', toggleSidebar);
+        $('#language-toggle').addEventListener('change', (e) => setLanguage(e.target.checked ? 'or' : 'en'));
+        $('#logout-link').addEventListener('click', () => location.reload());
+        $('#close-notification').addEventListener('click', () => $('#notification-popup').classList.add('hidden'));
+        window.addEventListener('hashchange', loadContentFromHash);
+        
+        // Voice Assistant
+        $('#voice-assistant-btn').addEventListener('click', () => {
+            if (recognition) {
+                $('#voice-assistant-btn').classList.add('voice-listening');
+                $('#voice-status').classList.remove('hidden');
+                recognition.lang = currentLanguage === 'or' ? 'or-IN' : 'en-US';
+                recognition.start();
+            }
+        });
+
+        // Sidebar links
+        $$('.menu-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (link.getAttribute('href') !== '#logout') {
+                    e.preventDefault();
+                    window.location.hash = link.getAttribute('href');
+                }
+            });
+        });
+    };
+
+    const addDynamicEventListeners = () => {
+        // Event filters
+        $$('.filter-button').forEach(button => {
+            button.addEventListener('click', () => {
+                $$('.filter-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const filter = button.dataset.filter;
+                $$('.event-card').forEach(card => {
+                    card.style.display = (filter === 'all' || card.dataset.category === filter) ? 'block' : 'none';
+                });
+            });
+        });
+        
+        // Scholarship tabs
+        const scholarshipTabs = $('#scholarship-tabs');
+        if (scholarshipTabs) {
+            scholarshipTabs.addEventListener('click', (e) => {
+                const clickedTab = e.target.closest('.tab-button');
+                if (!clickedTab) return;
+
+                scholarshipTabs.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                clickedTab.classList.add('active');
+                
+                const tabId = clickedTab.dataset.tab;
+                $$('.tab-content').forEach(content => {
+                    content.classList.toggle('active', content.id === `${tabId}-tab`);
+                });
+            });
+        }
+        
+        // Update banner content
+        if ($('#notification-banner-content')) {
+            updateBannerContent();
+        }
+    };
+
+    // --- START THE APP ---
+    init();
+});
+</script>
 </body>
 </html>
