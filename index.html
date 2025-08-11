@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karigar's Hub</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="antialiased">
+
+    <div id="login-overlay" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center relative">
+            <button id="close-login-overlay-btn" class="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-800 rounded-full" aria-label="Close login">
+                <i class="material-icons" aria-hidden="true">close</i>
+            </button>
+            
+            <div id="login-step-1">
+                <h2 class="text-2xl font-bold mb-2" data-translate="login_title">Create an Account</h2>
+                <p class="text-gray-600 mb-6" data-translate="login_desc">Choose a method to sign up or log in.</p>
+                <div class="space-y-3">
+                    <div class="flex items-center border-2 border-gray-200 rounded-lg px-3 py-2">
+                        <i class="material-icons text-gray-400">phone</i>
+                        <input type="tel" id="phone-number" placeholder="10-digit mobile number" class="w-full p-1 ml-2 border-none focus:ring-0" maxlength="10">
+                    </div>
+                     <button id="phone-login-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 opacity-50 cursor-not-allowed" data-translate="login_button_phone" disabled>Continue with Phone</button>
+                    <div class="my-2 text-xs text-gray-400">OR</div>
+                    <button class="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 flex items-center justify-center"><i class="material-icons mr-2">email</i><span data-translate="login_button_email">Continue with Email</span></button>
+                    <button class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 flex items-center justify-center"><i class="material-icons mr-2">fingerprint</i><span data-translate="login_button_aadhaar">Continue with Aadhaar</span></button>
+                </div>
+            </div>
+
+            <div id="login-step-2" class="hidden">
+                 <h2 class="text-2xl font-bold mb-2" data-translate="artisan_card_q">Do you have an Artisan Card?</h2>
+                 <p class="text-gray-600 mb-6" data-translate="artisan_card_desc">This helps us verify your identity and provide tailored services.</p>
+                 <div class="space-y-3">
+                     <button id="has-card-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700" data-translate="yes">Yes, I have a card</button>
+                     <button id="no-card-btn" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300" data-translate="no">No, I need to register</button>
+                 </div>
+            </div>
+
+            <div id="login-step-3" class="hidden">
+                <h2 class="text-2xl font-bold mb-2" data-translate="verify_card_title">Verify Your Card</h2>
+                <p class="text-gray-600 mb-6" data-translate="verify_card_desc">Please enter your Artisan Card number.</p>
+                <input type="text" id="artisan-card-number" placeholder="Enter card number" class="w-full p-2 border-2 border-gray-200 rounded-lg text-center">
+                <button id="verify-card-btn" class="w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 mt-4" data-translate="verify_card_button">Verify & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="max-w-4xl mx-auto hidden">
+        <header class="bg-white shadow-md sticky top-0 z-30 p-4 flex justify-between items-center">
+            <button id="menu-btn" class="p-2 rounded-full hover:bg-gray-100" aria-label="Open menu">
+                <i class="material-icons" aria-hidden="true">menu</i>
+            </button>
+            <h1 class="text-xl font-bold text-sky-800" data-translate="app_title">Karigar's Hub</h1>
+            <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium">EN</span>
+                <label for="language-toggle" class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" value="" id="language-toggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-600"></div>
+                </label>
+                <span class="text-sm font-medium">ଓଡ଼ିଆ</span>
+            </div>
+        </header>
+
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+        <aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 left-0 h-full w-72 bg-white shadow-lg z-50">
+            <div class="p-4 border-b flex items-center space-x-3">
+                <div class="bg-sky-600 text-white p-3 rounded-full">
+                    <i class="material-icons">storefront</i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800" data-translate="app_title">Karigar's Hub</h2>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="#home" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">home</i> <span data-translate="nav_home">Home</span></a>
+                <a href="#finance" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">paid</i> <span data-translate="nav_finance">Financial Aid & Loans</span></a>
+                <a href="#scholarships" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">school</i><span data-translate="nav_scholarships">Scholarships & Education</span></a>
+                <a href="#training" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">model_training</i> <span data-translate="nav_training">Empower You / Training</span></a>
+                <a href="#events" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">event</i> <span data-translate="nav_events">Events & Fairs</span></a>
+                <a href="#digilocker" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">folder_shared</i> <span data-translate="nav_digilocker">DigiLocker</span></a>
+                <a href="#support" class="menu-link flex items-center space-x-3 p-2 rounded-lg"><i class="material-icons">support_agent</i> <span data-translate="nav_support">Support</span></a>
+                <a href="#logout" id="logout-link" class="menu-link flex items-center space-x-3 p-2 rounded-lg mt-8 border-t pt-4"><i class="material-icons">logout</i> <span data-translate="nav_logout">Logout</span></a>
+            </nav>
+        </aside>
+
+        <main id="content-area" class="pb-24"></main>
+        
+        <button id="voice-assistant-btn" class="fab fixed bottom-6 right-6 bg-sky-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center z-40" aria-label="Activate voice assistant">
+            <i class="material-icons text-3xl" aria-hidden="true">mic</i>
+        </button>
+        <div id="voice-status" class="fixed bottom-24 right-6 bg-black text-white text-sm rounded-lg px-3 py-1 z-40 hidden" data-translate="voice_listening">Listening...</div>
+
+        <div id="notification-popup" class="fixed top-20 right-5 bg-white p-4 rounded-lg shadow-lg z-50 hidden items-start space-x-3 max-w-sm">
+            <i class="material-icons text-sky-500 mt-1">campaign</i>
+            <div>
+                <h4 id="notification-title" class="font-bold"></h4>
+                <p id="notification-body" class="text-sm text-gray-600"></p>
+            </div>
+            <button id="close-notification" class="text-gray-400 hover:text-gray-700" aria-label="Close notification">&times;</button>
+        </div>
+    </div>
+
+
+    <template id="home-content">
+        <div class="bg-sky-800 text-white p-2 marquee">
+            <span id="notification-banner-content"></span>
+        </div>
+        <div class="p-4 md:p-6">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="about_us_title">About Us</h2>
+                <p class="text-gray-600" data-translate="about_us_desc">Our platform is a dedicated digital hub designed to empower handloom artisans... (content truncated for brevity)</p>
+            </div>
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="nav_training">Empower Yourself</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     </div>
+            </div>
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3" data-translate="stories_title">Artisans' Stories</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
+                        <img src="https://placehold.co/80x80/E2E8F0/475569?text=PS" alt="Artisan Priya Sahoo" class="w-20 h-20 rounded-full object-cover" loading="lazy">
+                        <div>
+                             <h3 class="font-bold">Priya Sahoo</h3>
+                             <p class="text-sm text-gray-500">Pattachitra Artist, Raghurajpur</p>
+                             <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                        </div>
+                    </div>
+                     <div class="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
+                        <img src="https://placehold.co/80x80/E2E8F0/475569?text=AM" alt="Artisan Ashok Meher" class="w-20 h-20 rounded-full object-cover" loading="lazy">
+                        <div>
+                             <h3 class="font-bold">Ashok Meher</h3>
+                             <p class="text-sm text-gray-500">Sambalpuri Weaver, Bargarh</p>
+                             <a href="#" class="text-sky-600 text-sm hover:underline" data-translate="read_more">Read More &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-4 bg-green-100 text-green-800 font-semibold py-2 px-4 rounded-lg hover:bg-green-200" data-translate="submit_story">Submit Your Story</button>
+            </div>
+            </div>
+    </template>
+
+    <template id="finance-content">
+        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_finance">Financial Aid & Loans</h2>
+        <div class="space-y-4 px-4 md:px-6">
+            </div>
+    </template>
+    
+    <template id="scholarships-content">
+         <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_scholarships">Scholarships & Education</h2>
+         <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mx-4 md:mx-6">
+            </div>
+    </template>
+    
+    <template id="training-content">
+        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_training">Empower You / Training</h2>
+        <div class="space-y-6 px-4 md:px-6">
+             </div>
+    </template>
+    
+    <template id="events-content">
+        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_events">Events & Fairs</h2>
+        <div class="px-4 md:px-6">
+            </div>
+    </template>
+    
+    <template id="digilocker-content">
+        <h2 class="text-2xl font-bold mb-4 p-4 md:p-6" data-translate="nav_digilocker">DigiLocker</h2>
+        <div class="bg-white p-6 rounded-lg shadow text-center mx-4 md:mx-6">
+             <p class="mb-4" data-translate="digilocker_desc">Securely store and share your official documents like Aadhaar, Artisan Card, and more.</p>
+             <a href="https://www.digilocker.gov.in/" target="_blank" class="inline-block bg-sky-600 text-white py-2 px-6 rounded-lg hover:bg-sky-700" data-translate="digilocker_button">Go to DigiLocker</a>
+        </div>
+    </template>
+    
+    <template id="support-content">
+        </template>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
